@@ -61,34 +61,11 @@ class BooksToScrapeShelfSpider(CrawlSpider):
 
     def parse(self, response, **kwargs):
         """Code that will scrape shelf level data."""
-        page_number = self.get_page_number(response.url)
-
         for i in range(0, 5):  # this will be for el in scraped_el_lst after we get one
             scraped_data = BookShelfData(
                 response_url=response.url,
                 run_id=self.run_id,
-                page_number=page_number,
+                page_number=response.url,  # extracted during validation
             )
 
             print(scraped_data.json())  # save it at this point
-
-    @staticmethod
-    def get_page_number(response_url: str) -> int:  # feels like this belongs elsewhere bad composition 0/10
-        """Get the page number out the url.
-
-        Parameters
-        ----------
-        response_url: A valid URL from books to scrape
-
-        Returns
-        -------
-        int
-            The page number the items are being scraped off.
-        """
-        if 'page-' not in response_url:
-            return 1
-        else:
-            try:
-                return int(response_url.split('page-')[1].split('.')[0])
-            except ValueError as e:
-                reraise(e, "somethings fucked with the url here! look closer lad! look closer than you've ever looked!")

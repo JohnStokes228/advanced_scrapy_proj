@@ -1,8 +1,6 @@
 """
 Base Models to validate scraped data with.
 """
-import re
-import uuid
 import hashlib
 
 from pydantic import (
@@ -10,6 +8,7 @@ from pydantic import (
     Field,
     UUID4,
     validator,
+    Extra,
 )
 from typing import (
     Dict,
@@ -17,13 +16,14 @@ from typing import (
     Optional,
 )
 from datetime import datetime
-from word2number import w2n
 
 from spiders.custom_errors import InvalidURLError
 from spiders.custom_datatypes import (
     Price,
     StarRating,
     InStock,
+    PageNumber,
+    ItemRank,
 )
 
 
@@ -35,7 +35,7 @@ class BookShelfData(BaseModel):
     # Scrape level attrs
     response_url: str = Field()
     run_id: UUID4 = Field()
-    page_number: int = Field()
+    page_number: PageNumber = Field()  # also fits in Custom data section
 
     # Raw data
     raw_html: str = Field()
@@ -45,18 +45,19 @@ class BookShelfData(BaseModel):
     book_title: str = Field()
     page_rank: int = Field()
 
-    # Custom data
+    # Custom data - dtype changes compared to that received
     in_stock: InStock = Field()
     price: Price = Field()
     star_rating: StarRating = Field()
+    item_rank: ItemRank = Field()  # ? should this be a validator?
 
     # Imputed attr
     genre: Optional[str] = Field(const=True)
-    item_rank: Optional[int] = Field(const=True)
     item_id: Optional[str] = Field(const=True)  # so queries can be generic at the shelf level
 
     class Config:
         validate_assignment = True
+        extra = Extra.forbid
 
     @validator('response_url')
     def validate_response_url(
@@ -128,31 +129,6 @@ class BookShelfData(BaseModel):
         )
 
         return genre
-
-    @validator('item_rank', always=True)
-    def generate_item_rank(
-        cls,
-        vl,
-        values: Dict[str, Any]
-    ) -> str:
-        """Extract the book genre from the response URL.
-
-        Parameters
-        ----------
-        values: Dict of all values in class.
-
-        Returns
-        -------
-        str
-            The books genre, cleaned and ready to go.
-        """
-        book_rank = (
-            values["item_url"]
-            .split('/')[4]  # tightly structured url, this is the rank fragment
-            .split('_')[1]  # dont care about the genres numeric code, which follows the underscore
-        )
-
-        return book_rank
 
     @validator('item_id', always=True)
     def hash_str(

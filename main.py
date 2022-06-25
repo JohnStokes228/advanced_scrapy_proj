@@ -13,7 +13,7 @@ if __name__ == "__main__":
     test = BookShelfData(
         response_url='https://books.toscrape.com/catalogue/category/books/food-and-drink_33/page-2.html',
         run_id=uuid.uuid4(),
-        page_number=1,
+        page_number='https://books.toscrape.com/catalogue/category/books/food-and-drink_33/page-2.html',
         raw_html='nah m8',
         item_url='https://books.toscrape.com/catalogue/how-to-be-a-domestic-goddess_470/index.html',
         book_title='title of the book',
