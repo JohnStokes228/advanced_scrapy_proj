@@ -1,24 +1,31 @@
 """
 here be crawly bastards
 
-TODO: - add data schema as input
-      - write the entire actual scraping code
+TODO: - write the entire actual scraping code
       - consider best composition for the scraping code w.r.t crawlers, scrapers, etc...
+      - consider logging
+      - consider data storage post scrape
 """
 import uuid
 
+import pydantic
 from scrapy.spiders import (
     CrawlSpider,
     Rule,
 )
 from scrapy.linkextractors import LinkExtractor
 from datetime import datetime
+from pydantic import BaseModel
 
 from spiders.input_transformer import InputTransformer
-from spiders.data_validators import BooksToScrapeShelfValidator
+from spiders.data_validators import BookShelfData
+from spiders.custom_errors import reraise
 
 
 class BooksToScrapeShelfSpider(CrawlSpider):
+    """
+    Crawl and scrape the shelf level data from books to scrape dot com.
+    """
     def __init__(
         self,
         name: str,
@@ -54,13 +61,34 @@ class BooksToScrapeShelfSpider(CrawlSpider):
 
     def parse(self, response, **kwargs):
         """Code that will scrape shelf level data."""
-        # scrape all the shit
-        # run the pipeline that will act to save the scraped stuff
-        # needs logger
-        # scraped_data = scrape(target_data)  # run the scrape function on targets
-        scraped_data = BooksToScrapeShelfValidator(
-            response_url=response.url,
-            item_url='bullshit',
-        )
+        page_number = self.get_page_number(response.url)
 
-        print(scraped_data.json())
+        for i in range(0, 5):  # this will be for el in scraped_el_lst after we get one
+            scraped_data = BookShelfData(
+                response_url=response.url,
+                run_id=self.run_id,
+                page_number=page_number,
+            )
+
+            print(scraped_data.json())  # save it at this point
+
+    @staticmethod
+    def get_page_number(response_url: str) -> int:  # feels like this belongs elsewhere bad composition 0/10
+        """Get the page number out the url.
+
+        Parameters
+        ----------
+        response_url: A valid URL from books to scrape
+
+        Returns
+        -------
+        int
+            The page number the items are being scraped off.
+        """
+        if 'page-' not in response_url:
+            return 1
+        else:
+            try:
+                return int(response_url.split('page-')[1].split('.')[0])
+            except ValueError as e:
+                reraise(e, "somethings fucked with the url here! look closer lad! look closer than you've ever looked!")

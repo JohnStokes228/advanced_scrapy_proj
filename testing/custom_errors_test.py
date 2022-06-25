@@ -2,10 +2,11 @@ import unittest
 from spiders.custom_errors import (
     reraise,
     InvalidURLError,
+    InvalidPriceError,
 )
 
 
-class TestInvalidURLError(unittest.TestCase):
+class TestCustomErrors(unittest.TestCase):
     @staticmethod
     def useless():
         try:
@@ -22,6 +23,11 @@ class TestInvalidURLError(unittest.TestCase):
         with self.assertRaises(Exception) as context:
             raise InvalidURLError(url='not a url', scrape_id='crap id')
         self.assertTrue("'not a url'" in str(context.exception))
+
+    def test_invalid_price_error(self):
+        with self.assertRaises(Exception) as context:
+            raise InvalidPriceError('ssdddjkdfjk')
+        self.assertTrue("'ssdddjkdfjk'" in str(context.exception))
 
 
 if __name__ == '__main__':

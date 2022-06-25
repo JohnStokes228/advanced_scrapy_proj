@@ -3,6 +3,7 @@ Base Models to validate scraped data with.
 """
 import re
 import uuid
+import hashlib
 
 from pydantic import (
     BaseModel,
@@ -13,29 +14,46 @@ from pydantic import (
 from typing import (
     Dict,
     Any,
+    Optional,
 )
 from datetime import datetime
+from word2number import w2n
+
 from spiders.custom_errors import InvalidURLError
+from spiders.custom_datatypes import (
+    Price,
+    StarRating,
+    InStock,
+)
 
 
-class BooksToScrapeShelfValidator(BaseModel):
+class BookShelfData(BaseModel):
     """Validator for shelf level scrape data off of books to scrape dot com"""
     # Auto generated attrs
-    scrape_id: UUID4 = Field(default_factory=uuid.uuid4, const=True)
     scrape_time: datetime = Field(default_factory=datetime.now, const=True)
 
     # Scrape level attrs
     response_url: str = Field()
-    manual_run: str = Field()
-    run_time: str = Field()
-    run_id: str = Field()
+    run_id: UUID4 = Field()
+    page_number: int = Field()
 
-    # item level attrs
+    # Raw data
+    raw_html: str = Field()
+
+    # Item level attrs
     item_url: str = Field()
-    star_rating: str = Field()
     book_title: str = Field()
-    price: str = Field()
-    in_stock_flag: str = Field()
+    page_rank: int = Field()
+
+    # Custom data
+    in_stock: InStock = Field()
+    price: Price = Field()
+    star_rating: StarRating = Field()
+
+    # Imputed attr
+    genre: Optional[str] = Field(const=True)
+    item_rank: Optional[int] = Field(const=True)
+    item_id: Optional[str] = Field(const=True)  # so queries can be generic at the shelf level
 
     class Config:
         validate_assignment = True
@@ -84,11 +102,89 @@ class BooksToScrapeShelfValidator(BaseModel):
             raise InvalidURLError(url=vl, scrape_id=values["scrape_id"])
         return vl
 
+    @validator('genre', always=True)
+    def extract_genre(
+        cls,
+        vl,
+        values: Dict[str, Any]
+    ) -> str:
+        """Extract the book genre from the response URL.
+
+        Parameters
+        ----------
+        values: Dict of all values in class.
+
+        Returns
+        -------
+        str
+            The books genre, cleaned and ready to go.
+        """
+        genre = (
+            values["response_url"]
+            .split('/')[6]  # tightly structured url, this is the genre fragment
+            .split('_')[0]  # dont care about the genres numeric code, which follows the underscore
+            .replace('-', ' ')
+            .lower()
+        )
+
+        return genre
+
+    @validator('item_rank', always=True)
+    def generate_item_rank(
+        cls,
+        vl,
+        values: Dict[str, Any]
+    ) -> str:
+        """Extract the book genre from the response URL.
+
+        Parameters
+        ----------
+        values: Dict of all values in class.
+
+        Returns
+        -------
+        str
+            The books genre, cleaned and ready to go.
+        """
+        book_rank = (
+            values["item_url"]
+            .split('/')[4]  # tightly structured url, this is the rank fragment
+            .split('_')[1]  # dont care about the genres numeric code, which follows the underscore
+        )
+
+        return book_rank
+
+    @validator('item_id', always=True)
+    def hash_str(
+        cls,
+        vl,
+        values: Dict[str, Any],
+    ) -> str:
+        """Hash the desired column to produce the item id.
+
+        Parameters
+        ----------
+        values: Dict of all values in class.
+
+        Returns
+        -------
+        str
+            The hashed title of the book.
+        """
+        return hashlib.md5(values['book_title'].encode()).hexdigest()
+
 
 if __name__ == '__main__':
-    test = BooksToScrapeShelfValidator(
-        response_url='https://books.toscrape.com/catalogue/category/books/',
-        item_url='https://books.toscrape.com/catalogue/fiddler'
+    test = BookShelfData(
+        response_url='https://books.toscrape.com/catalogue/category/books/food-and-drink_33/page-2.html',
+        run_id='',
+        page_number=1,
+        raw_html='nah m8',
+        item_url='https://books.toscrape.com/catalogue/how-to-be-a-domestic-goddess_470/index.html',
+        book_title='title of the book',
+        price='a loads of cash £13.90',
+        page_rank=12,
+        in_stock=' in stock ',
+        star_rating='star_rating Two',
     )
     print(test)
-    test.item_url = 'lol_nah mate'

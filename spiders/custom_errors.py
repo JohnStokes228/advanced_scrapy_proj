@@ -14,6 +14,16 @@ class InvalidURLError(Exception):
         super().__init__(message)
 
 
+class InvalidPriceError(Exception):
+    """Custom error for Pydantic to raise in case where price inputs are not able to be transformed to float."""
+    def __init__(
+        self,
+        price_str: str,
+    ):
+        message = f"price '{price_str}' does not contain a float."
+        super().__init__(message)
+
+
 def reraise(
     e: Exception,
     *args,
