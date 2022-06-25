@@ -1,6 +1,17 @@
 """
-Generic helpers for the project, might be useful all over who knows...
+All custom exceptions and associated code.
 """
+
+
+class InvalidURLError(Exception):
+    """Custom error for Pydantic to raise in case where URL inputs are of wrong structure."""
+    def __init__(
+        self,
+        url: str,
+        scrape_id: str,
+    ):
+        message = f"URL '{url}' does not match expected structure for scrape ID '{scrape_id}'"
+        super().__init__(message)
 
 
 def reraise(
@@ -20,7 +31,7 @@ def reraise(
 
     Parameters
     ----------
-    e : The exception to reraise.
+    e : The exception to re-raise.
     args : Extra args to add to the exception.
     """
     e.args = args + e.args

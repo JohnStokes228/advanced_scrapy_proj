@@ -5,13 +5,13 @@ setters, but I've been forced to resort to this sorry state of affairs due to my
 import string
 from typing import List, Optional
 from distutils.util import strtobool
-from spiders.helper_functions import reraise
+from spiders.custom_errors import reraise
 
 
-class InputValidator:
+class InputTransformer:
     """Validates inputs users will give to the project."""
     @staticmethod
-    def validate_name(desired_name: str) -> str:
+    def transform_name(desired_name: str) -> str:
         """Make sure the name is compatible with the desired structure.
 
         Parameters
@@ -29,11 +29,11 @@ class InputValidator:
             The desired name for the object.
         """
         trans_table = str.maketrans(' ', '_', string.punctuation)
-        return desired_name.translate(trans_table)
+        return desired_name.lower().translate(trans_table)
 
     @staticmethod
-    def validate_start_urls(urls_lst: str) -> Optional[List[str]]:
-        """Validate that the provided start_urls are what they say they are - they'll probs be passed in at command
+    def transform_input_urls_list(urls_lst: str) -> Optional[List[str]]:
+        """Validate that the provided urls lists are what they say they are - they'll probs be passed in at command
         line I'd have thought.
 
         Parameters
@@ -51,13 +51,12 @@ class InputValidator:
             A list of strings, or raises TypeError if this is not possible.
         """
         try:
-            urls_lst = urls_lst.split(',')
-            return urls_lst
-        except AttributeError:  # lol nah I'll change the type of this error thanks
+            return urls_lst.split(',')
+        except AttributeError:  # this might never raise if urls_lst always comes via cmd since that'll always be str?
             raise TypeError("Stop using something that's not a comma separated string as a list of urls please!")
 
     @staticmethod
-    def validate_manual_run(manual_run: str):
+    def transform_manual_run(manual_run: str):
         """Validate the manual run flag passed to the object.
 
         Parameters
