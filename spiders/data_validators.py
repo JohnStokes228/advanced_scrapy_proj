@@ -41,15 +41,15 @@ class BookShelfData(BaseModel):
     raw_html: str = Field()
 
     # Item level attrs
-    item_url: str = Field()
-    book_title: str = Field()
-    page_rank: int = Field()
+    item_url: Optional[str] = Field()
+    book_title: Optional[str] = Field()
+    page_rank: Optional[int] = Field()
 
     # Custom data - dtype changes compared to that received
-    in_stock: InStock = Field()
-    price: Price = Field()
-    star_rating: StarRating = Field()
-    item_rank: ItemRank = Field()  # ? should this be a validator?
+    in_stock: Optional[InStock] = Field()
+    price: Optional[Price] = Field()
+    star_rating: Optional[StarRating] = Field()
+    item_rank: Optional[ItemRank] = Field()  # ? should this be a validator?
 
     # Imputed attr
     genre: Optional[str] = Field(const=True)
@@ -123,7 +123,7 @@ class BookShelfData(BaseModel):
         genre = (
             values["response_url"]
             .split('/')[6]  # tightly structured url, this is the genre fragment
-            .split('_')[0]  # dont care about the genres numeric code, which follows the underscore
+            .split('_')[0]  # don't care about the genres numeric code, which follows the underscore
             .replace('-', ' ')
             .lower()
         )
@@ -157,6 +157,7 @@ if __name__ == '__main__':
         page_number=1,
         raw_html='nah m8',
         item_url='https://books.toscrape.com/catalogue/how-to-be-a-domestic-goddess_470/index.html',
+        item_rank='https://books.toscrape.com/catalogue/how-to-be-a-domestic-goddess_470/index.html',
         book_title='title of the book',
         price='a loads of cash £13.90',
         page_rank=12,

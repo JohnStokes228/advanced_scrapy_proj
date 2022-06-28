@@ -3,8 +3,10 @@ Validation for the expected arguments to be passed into the project via command 
 setters, but I've been forced to resort to this sorry state of affairs due to my desires for more pleasant composition.
 """
 import string
+
 from typing import List, Optional
 from distutils.util import strtobool
+
 from spiders.custom_errors import reraise
 
 
@@ -56,7 +58,7 @@ class InputTransformer:
             raise TypeError("Stop using something that's not a comma separated string as a list of urls please!")
 
     @staticmethod
-    def transform_manual_run(manual_run: str):
+    def transform_manual_run(manual_run: str) -> bool:
         """Validate the manual run flag passed to the object.
 
         Parameters
