@@ -58,11 +58,11 @@ class BooksToScrapeShelfSpider(CrawlSpider):
         self.run_time = datetime.now().isoformat()
         self.run_id = str(uuid.uuid4())
 
-        self.data_saver = DataSaver(name=self.name, folder_name=folder_name, sub_folders=['info', 'shelf'],
+        self.data_saver = DataSaver(name=self.name, folder_name=folder_name, sub_folders=['runs', 'data'],
                                     spider=self.__class__.__name__)
         self.data_saver.save_data(
             to_save={key: value for key, value in vars(self).items() if key != 'data_saver'},
-            sub_folder='info'
+            sub_folder='runs'
         )
 
         self.rules = (
@@ -91,4 +91,4 @@ class BooksToScrapeShelfSpider(CrawlSpider):
                 item_rank=item.xpath("/div/a/@href").extract()[0],  # extracted from url
             )
 
-            self.data_saver.save_data(to_save=scraped_data.json(), sub_folder='shelf')  # save it at this point
+            self.data_saver.save_data(to_save=scraped_data.json(), sub_folder='data')  # save it at this point

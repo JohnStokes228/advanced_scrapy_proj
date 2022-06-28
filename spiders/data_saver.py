@@ -25,10 +25,18 @@ class DataSaver:
 
     @property
     def folder_name(self) -> str:
+        """Getter for folder_name"""
         return self._folder_name
 
     @folder_name.setter
     def folder_name(self, desired_name: str) -> None:
+        """Establish the desired folder structure, currently done local but ideally eventually done in a cloud storage
+        somewhere.
+
+        Parameters
+        ----------
+        desired_name : Name of folder that you will set up.
+        """
         for sub_folder in self.sub_folders:
             try:
                 Path(f'{desired_name}/{self.spider}/{sub_folder}').mkdir(parents=True, exist_ok=True)
@@ -43,12 +51,12 @@ class DataSaver:
         to_save: Dict[str, Any],
         sub_folder: str = '',
     ) -> None:
-        """Save the serialised object to the desired location.
+        """Save the serialised object to the desired location, currently local only.
 
         Parameters
         ----------
         to_save : Dictionary in serialised form i.e. no shit dtypes pls.
-        sub_folder : Name of subfolder to put data in if desired.
+        sub_folder : Name of sub folder to put data in if desired.
         """
         time_of_save = datetime.now().strftime(format='%Y%m%d%H%M%S')
 
@@ -60,5 +68,5 @@ class DataSaver:
             json.dump(to_save, f, ensure_ascii=False, indent=4)
 
     @staticmethod
-    def connect_to_dbase_or_someshit():
-        pass  # probs the dbase is a class attr? lets have a look online for a bit.
+    def connect_to_dbase_or_some_shit():
+        pass  # probs the dbase is a class attr? let's have a look online for a bit.
