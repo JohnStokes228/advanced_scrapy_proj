@@ -58,7 +58,8 @@ class BooksToScrapeShelfSpider(CrawlSpider):
         self.run_time = datetime.now().isoformat()
         self.run_id = str(uuid.uuid4())
 
-        self.data_saver = DataSaver(name=self.name, folder_name=folder_name, sub_folders=['info', 'shelf'])
+        self.data_saver = DataSaver(name=self.name, folder_name=folder_name, sub_folders=['info', 'shelf'],
+                                    spider=self.__class__.__name__)
         self.data_saver.save_data(
             to_save={key: value for key, value in vars(self).items() if key != 'data_saver'},
             sub_folder='info'

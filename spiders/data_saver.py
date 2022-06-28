@@ -11,15 +11,16 @@ from spiders.custom_errors import reraise
 
 
 class DataSaver:
-
     def __init__(
         self,
         name: str,
-        folder_name: str,
         sub_folders: List[str],
+        spider: str,
+        folder_name: str,
     ) -> None:
         self.name = name
         self.sub_folders = sub_folders
+        self.spider = spider
         self.folder_name = folder_name
 
     @property
@@ -30,10 +31,10 @@ class DataSaver:
     def folder_name(self, desired_name: str) -> None:
         for sub_folder in self.sub_folders:
             try:
-                Path(f'{desired_name}/{sub_folder}').mkdir(parents=True, exist_ok=True)
+                Path(f'{desired_name}/{self.spider}/{sub_folder}').mkdir(parents=True, exist_ok=True)
 
             except Exception as e:  # will this ever error? how?
-                reraise(e, f"Oh cock! Failed to set up desired folder {desired_name}/{sub_folder}!")
+                reraise(e, f"Oh cock! Failed to set up desired folder {desired_name}/{self.spider}/{sub_folder}!")
 
             self._folder_name = desired_name
 
@@ -51,7 +52,11 @@ class DataSaver:
         """
         time_of_save = datetime.now().strftime(format='%Y%m%d%H%M%S')
 
-        with open(f'{self.folder_name}/{sub_folder}/{self.name}_{time_of_save}.json', 'w', encoding='utf-8') as f:
+        with open(
+            f'{self.folder_name}/{self.spider}/{sub_folder}/{self.name}_{time_of_save}.json',
+            'w',
+            encoding='utf-8'
+        ) as f:
             json.dump(to_save, f, ensure_ascii=False, indent=4)
 
     @staticmethod
