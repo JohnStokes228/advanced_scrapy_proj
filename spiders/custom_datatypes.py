@@ -32,6 +32,9 @@ class StarRating(int):
 
     @classmethod
     def validate(cls, vl: str) -> int:
+        if isinstance(vl, list):
+            vl = ' '.join(vl)
+
         return w2n.word_to_num(vl)
 
     def __repr__(self):
@@ -87,7 +90,7 @@ class ItemRank(int):
         try:
             item_rank = int(
                 vl
-                .split('/')[4]  # tightly structured url, this is the rank fragment
+                .split('/')[-2]  # tightly structured url, this is the rank fragment
                 .split('_')[1]  # dont care about the genres numeric code, which follows the underscore
             )
 

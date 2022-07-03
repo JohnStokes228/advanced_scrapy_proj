@@ -48,7 +48,7 @@ class DataSaver:
 
     def save_data(
         self,
-        to_save: Dict[str, Any],
+        to_save: str,
         sub_folder: str = '',
     ) -> None:
         """Save the serialised object to the desired location, currently local only.

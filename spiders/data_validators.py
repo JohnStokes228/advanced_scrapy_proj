@@ -77,8 +77,8 @@ class BookShelfData(BaseModel):
         str
             The validated URL that will deffo pass validation because its valid goddammit.
         """
-        if "https://books.toscrape.com/catalogue/category/books/" not in vl:
-            raise InvalidURLError(url=vl, scrape_id=values["scrape_id"])
+        if "https://books.toscrape.com/catalogue/category/books" not in vl:
+            raise InvalidURLError(url=vl, scrape_id=values["run_id"])
         return vl
 
     @validator('item_url')
@@ -99,8 +99,8 @@ class BookShelfData(BaseModel):
         str
             The validated URL that will deffo pass validation because its valid goddammit.
         """
-        if ("https://books.toscrape.com/catalogue/" not in vl) | ("category/books" in vl):
-            raise InvalidURLError(url=vl, scrape_id=values["scrape_id"])
+        if ("/index.html" not in vl) | ("category/books" in vl):
+            raise InvalidURLError(url=vl, scrape_id=values["run_id"])
         return vl
 
     @validator('genre', always=True)

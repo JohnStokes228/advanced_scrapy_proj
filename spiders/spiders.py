@@ -1,13 +1,13 @@
 """
 here be crawly bastards
 
-TODO: - consider best composition for the scraping code w.r.t crawlers, scrapers, etc...
-      - consider logging
+TODO: - consider logging
       - consider data storage post scrape
-      - test run is probs about time for that
 """
 import uuid
 import json
+import time
+import random
 
 import pydantic
 from scrapy.spiders import (
@@ -17,6 +17,7 @@ from scrapy.spiders import (
 from scrapy.linkextractors import LinkExtractor
 from datetime import datetime
 from pydantic import BaseModel
+from bs4 import BeautifulSoup
 
 from spiders.input_transformer import InputTransformer
 from spiders.data_validators import BookShelfData
@@ -66,7 +67,9 @@ class BooksToScrapeShelfSpider(CrawlSpider):
         )
 
         self.rules = (
-            Rule(LinkExtractor(allow=("category", ), deny=("catalogue/page", )), callback="parse", follow=True),
+            Rule(LinkExtractor(allow=("category", ), deny=("catalogue/page", "books_1/", "page-1.", )),
+                 callback="parse",
+                 follow=True),
         )
 
         super(BooksToScrapeShelfSpider, self).__init__(name=self.name,
@@ -77,18 +80,20 @@ class BooksToScrapeShelfSpider(CrawlSpider):
     def parse(self, response, **kwargs):
         """Code that will scrape shelf level data."""
         for page_rank, item in enumerate(response.xpath("//article[@class='product_pod']")):
+            soup = BeautifulSoup(item.extract(), 'html.parser')  # temporary scrape method? might be a tit bit ott...?
             scraped_data = BookShelfData(
                 response_url=response.url,
                 run_id=self.run_id,  # used to link data to run info
-                page_number=response.url,  # extracted during validation
-                raw_html=item,
-                item_url=item.xpath("/div/a/@href").extract()[0],
-                book_title=item.xpath("/h3/a/@title").extract()[0],
+                page_number=response.url,
+                raw_html=item.extract(),
+                item_url=soup.find(href=True)['href'],
+                book_title=soup.find(title=True)['title'],
                 page_rank=page_rank,
-                in_stock=item.xpath("/div/p[@class='instock availability']/text()").extract()[0],
-                price=item.xpath("/div/p[@class='price_color']/text()").extract()[0],
-                star_rating=item.xpath("/p/@class").extract()[0],
-                item_rank=item.xpath("/div/a/@href").extract()[0],  # extracted from url
+                in_stock=soup.find('p', {"class": "instock availability"}).get_text(),
+                price=soup.find('p', {"class": "price_color"}).get_text(),
+                star_rating=soup.find('p', {"class": "star-rating"})['class'],
+                item_rank=soup.find(href=True)['href'],  # extracted from url
             )
+            time.sleep(random.random() + random.randint(0, 2))
 
             self.data_saver.save_data(to_save=scraped_data.json(), sub_folder='data')  # save it at this point
