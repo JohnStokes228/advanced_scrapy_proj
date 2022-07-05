@@ -20,12 +20,10 @@ from scrapy import Spider
 from scrapy.utils.httpobj import urlparse
 from typing import Optional, List
 
-from spider_try_2.string_cleaning import CleanStr, StrToBool, StrToList
+from spider_try_2.string_cleaning import StrTransformer
 
 
 class QuotesToScrapeShelfSpider(Spider):
-    """This will use playwright get hyped get hard get ready."""
-
     def __init__(
             self,
             name: str,
@@ -42,15 +40,15 @@ class QuotesToScrapeShelfSpider(Spider):
         allowed_domains : As with start urls, a comma separated list of allowed domains, to avoid over crawling.
         manual_run : Set to False if the run was scheduled rather than manually triggered.
         """
-        self.name = CleanStr(name)
-        self.start_urls: List[str] = StrToList(start_urls)
+        self.name = StrTransformer.clean_str(name)
+        self.start_urls = StrTransformer.str_to_list(start_urls)
 
         if allowed_domains:
-            self.allowed_domains: List[str] = StrToList(start_urls)
-        else:
+            self.allowed_domains = StrTransformer.str_to_list(start_urls)
+        else:  # fill it with all provided domains if user doesn't want only a subset
             self.allowed_domains: List[str] = list(filter(None, [urlparse(url).netloc for url in self.start_urls]))
 
-        self.manual_run = StrToBool(manual_run)
+        self.manual_run = StrTransformer.str_to_boolean(manual_run)
 
         super(QuotesToScrapeShelfSpider, self).__init__(name=self.name,
                                                         start_urls=self.start_urls,

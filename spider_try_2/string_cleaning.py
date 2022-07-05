@@ -1,19 +1,7 @@
 """
-Second pass at input transforming - this time probs using ABC method?
-
-advantages: - stores both the input and the output in a single object <- I like this alot actually
-            - fully modular, if we wanted to stack or replace these at any point
-            - easy to make new ones lad
-disadvantages: - clunky syntax, any way to reduce boilerplate code?
-               - pycharm flags it as ugly due to _input_string not being defined in the children which is agitating
-               - lot of code to mostly do what simple functions could in theory achieve, though the abc code does at
-               least sort of protect the code base?
-
-compared to the dunder method usage in Transformed, this is seemingly a bit clunkier, and requires many objects rather
-than just one. the trade-off does allow for more flexibility however, for instance if i wanted to transform to list
-using one of two methods, I'd suddenly find myself shagged using Transformed however I could just define an additonal
-child using ABC. Overall I think I prefer ABC as it can be used also for string cleaning later on.
-
+Fourth pass at input transforming lololol
+I think my main concern is that the .transform method between the children outputs different types which isn't ideal.
+Might prefer the previous setters based implementation for that reason?
 """
 import string
 
@@ -22,79 +10,67 @@ from typing import Any, Optional, List
 from distutils.util import strtobool
 
 
-class StrTransformer(ABC):
-    """Transformation of strs in set ways, ABC"""
-    def __init__(self, input_string):
-        self.input_string = input_string
-        self.transform = input_string
+class StrTransformer:
+    """Validates inputs users will give to the project."""
+    @staticmethod
+    def clean_str(input_str: str) -> str:
+        """Clean str in standard way.
 
-    @property
-    def transform(self) -> str:
-        """Getter for folder_name"""
-        return self._transform
+        Parameters
+        ----------
+        input_str : String, but if it's not up to snuff we'll be changing it!
 
-    @transform.setter
-    @abstractmethod  # implement this for each child - it acts as the cleaning sub function
-    def transform(self, vl: str) -> None:
-        pass
+        Notes
+        -----
+        Slight risk of being overly sweaty here, but the 'translate' method is orders of magnitude faster to run than
+        alternatives according to benchmarks. Hopefully I don't forget what its doing!!!
 
-    def __str__(self):
-        return str(self.transform)
-
-    def __getitem__(self, item: int) -> Any:
-        try:
-            return self.transform[item]
-        except IndexError:
-            raise IndexError("index is way out of range tbh bro")
-
-    def __bool__(self):
-        try:
-            return bool(self.transform)
-        except ValueError:
-            raise ValueError("nah can't make that a boolean fam")
-
-
-class CleanStr(StrTransformer):
-    """Transform str using simple cleaning methods."""
-    @StrTransformer.transform.setter
-    def transform(self, vl: str) -> None:
+        Returns
+        -------
+        str
+            The desired string but clean.
+        """
         trans_table = str.maketrans(' ', '_', string.punctuation)
         res = (
-            vl
+            input_str
             .lower()
             .translate(trans_table)
             .strip('_')
         )
-        self._transform = res
+        return res
 
+    @staticmethod
+    def str_to_list(input_str: str) -> List[str]:
+        """Split a string into a list of strings.
 
-class StrToList(StrTransformer):
-    """Transform str using rules for lists."""
-    @StrTransformer.transform.setter
-    def transform(self, vl: str) -> None:
+        Parameters
+        ----------
+        input_str : A string of ideally comma separated values.
+
+        Returns
+        -------
+        Optional[List[str]]
+            A list of strings, or raises TypeError if this is not possible.
+        """
         try:
-            self._transform = [value.replace(' ', '') for value in vl.split(',')]
-        except AttributeError:
-            raise TypeError("Presumably the input wasn't a string! (can't see how else this would break tbh...)")
+            return [vl.replace(' ', '') for vl in input_str.split(',')]
+        except AttributeError:  # this might never raise if urls_lst always comes via cmd since that'll always be str?
+            raise
 
+    @staticmethod
+    def str_to_boolean(input_str: str) -> bool:
+        """Convert input str to boolean if possible.
 
-class StrToBool(StrTransformer):
-    """Transform str using rules for booleans."""
-    @StrTransformer.transform.setter
-    def transform(self, vl: str) -> None:
+        Parameters
+        ----------
+        input_str : Ideally a boolean transformable string.
+
+        Returns
+        -------
+        bool
+            The desired flag, come rain come shine.
+        """
         try:
-            self._transform = strtobool(vl)
+            return bool(strtobool(input_str))
         except ValueError:
-            raise ValueError("The boolean representation of your provided string is ambiguous :(")
-
-
-if __name__ == '__main__':
-    tst = str(CleanStr('True, I am a cool dude 364te90dw!!  '))
-    print(tst)
-    tst2 = list(StrToList('hjafhjah, faslkjfjhfajka,fhfehef'))
-    for test in tst2:
-        print(test)
-    tst3 = bool(StrToBool('True'))
-    print(tst3, type(tst3))
-
-
+            raise
