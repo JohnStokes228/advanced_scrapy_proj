@@ -1,5 +1,5 @@
 import unittest
-from spiders.input_transformer import InputTransformer
+from spider_try_1.input_transformer import InputTransformer
 
 
 class TestInputValidator(unittest.TestCase):

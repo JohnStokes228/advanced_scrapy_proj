@@ -38,3 +38,5 @@ And probably some of their more complicated offshoots. Let's see how long it tak
 - some custom objects are half-baked and probably buggy in reality, though I do like the composition with object validation being used to transform and pydantic then preforming the coercion.
 - including a pause of up to 3 seconds after every scraped item feels like overkill and substantially slows the scrape down. need to find a reliable way to get per object scraped with minimal requests in order to cut down on downtime.
 - current composition doesn't allow for easy reuse of the \_\_init__ logic for the spiders. If this was considered a template that wouldn't be a huge issue but if it were instead considered the basis of a larger project then that would lead to alot of code duplication over time.
+
+to start to address these ive begun work on spiders_try_2 which will hopefully be less shit. maybe by try 5 it'll be at least ok?

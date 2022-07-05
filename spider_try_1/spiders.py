@@ -27,7 +27,8 @@ from spiders.data_saver import DataSaver
 
 class BooksToScrapeShelfSpider(CrawlSpider):
     """
-    Crawl and scrape the shelf level data from books to scrape dot com.
+    Crawl and scrape the shelf level data from books to scrape dot com. First pass at a more modern spider. has flaws
+    so look to quotestoscrapeshelfspider bellow for a less shit one pls.
     """
     def __init__(
         self,

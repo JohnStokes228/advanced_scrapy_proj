@@ -1,5 +1,5 @@
 import unittest
-from spiders.custom_errors import (
+from spider_try_1.custom_errors import (
     reraise,
     InvalidURLError,
     InvalidPriceError,

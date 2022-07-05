@@ -3,8 +3,8 @@ Main runner code for the project.
 
 TODO: - bloody write some bloody code mate
 """
-from spiders.spiders import BooksToScrapeShelfSpider
-from spiders.data_validators import BookShelfData
+from spider_try_1.spiders import BooksToScrapeShelfSpider
+from spider_try_1.data_validators import BookShelfData
 import uuid
 from scrapy.crawler import CrawlerProcess
 

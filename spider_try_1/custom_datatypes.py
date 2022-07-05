@@ -1,5 +1,7 @@
 """
 Custom datatypes for use with pydantic, will enforce validation at point of instantiation.
+
+particularly of use to webscraping as you almost always have to transform the outputs as they're often complete shite.
 """
 import re
 

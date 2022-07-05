@@ -1,5 +1,5 @@
 import unittest
-from spiders.custom_datatypes import (
+from spider_try_1.custom_datatypes import (
     Price,
     Instock,
     StarRating,
