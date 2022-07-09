@@ -1,9 +1,4 @@
 import unittest
-from spider_try_1.custom_datatypes import (
-    Price,
-    Instock,
-    StarRating,
-)
 
 
 class TestCustomDataTypes(unittest.TestCase):

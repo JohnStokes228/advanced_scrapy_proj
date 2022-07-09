@@ -1,5 +1,5 @@
 import unittest
-from spider_try_1.input_transformer import InputTransformer
+from shitcode.spider_try_1.input_transformer import InputTransformer
 
 
 class TestInputValidator(unittest.TestCase):

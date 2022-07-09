@@ -1,5 +1,5 @@
 import unittest
-from spider_try_1.custom_errors import (
+from shitcode.spider_try_1.custom_errors import (
     reraise,
     InvalidURLError,
     InvalidPriceError,
